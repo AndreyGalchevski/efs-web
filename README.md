@@ -1,4 +1,11 @@
-# Getting Started with Create React App
+# Ephemeral File Sharing Web App
+
+The app allows users to create shareable URLs for images they upload.
+## Tools:
+* Global state management: React Context API
+* Server cache management / API networking: React Query
+* UI library: Material UI
+* Styling: emotion
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
