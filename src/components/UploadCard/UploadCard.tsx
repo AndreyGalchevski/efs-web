@@ -14,6 +14,8 @@ import { ChangeEvent, useEffect, useState } from "react";
 import { useModalActions } from "../../hooks/useModalActions";
 import useMutationUploadImage from "../../hooks/useMutationUploadImage";
 
+const DEFAULT_TTL_SEC = "60";
+
 const CenteredCardContent = styled(CardContent)({
   display: "flex",
   flexDirection: "column",
@@ -28,7 +30,7 @@ const CenteredCardActions = styled(CardActions)({
 });
 
 function UploadCard() {
-  const [ttl, setTTL] = useState<number>();
+  const [ttl, setTTL] = useState<string>(DEFAULT_TTL_SEC);
   const [selectedFile, setSelectedFile] = useState<File>();
   const [validationError, setValidationError] = useState<string>();
   const {
@@ -49,7 +51,7 @@ function UploadCard() {
   };
 
   const handleTTLChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setTTL(Number(e.target.value));
+    setTTL(e.target.value);
   };
 
   const handleUploadClick = () => {
@@ -58,11 +60,18 @@ function UploadCard() {
       return;
     }
 
-    uploadImage({ image: selectedFile, ttl });
+    uploadImage({ image: selectedFile, ttl: Number(ttl) });
+  };
+
+  const resetForm = () => {
+    setSelectedFile(undefined);
+    setTTL(DEFAULT_TTL_SEC);
   };
 
   useEffect(() => {
     if (uploadImageData) {
+      resetForm();
+
       showModal({
         isVisible: true,
         modalData: {
@@ -75,6 +84,8 @@ function UploadCard() {
 
   useEffect(() => {
     if (uploadImageError) {
+      resetForm();
+
       showModal({
         isVisible: true,
         modalData: {
@@ -116,6 +127,8 @@ function UploadCard() {
           onChange={handleTTLChange}
           size="small"
           fullWidth
+          value={ttl}
+          InputProps={{ inputProps: { min: 1 } }}
         />
       </CenteredCardContent>
       <CenteredCardActions>
