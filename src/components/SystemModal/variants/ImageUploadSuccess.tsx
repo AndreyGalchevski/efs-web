@@ -8,8 +8,8 @@ interface Props {
 function ImageUploadSuccess({ shareableURL }: Props) {
   const [copiedToClipboard, setCopiedToClipboard] = useState(false);
 
-  const handleCopyToClipboardClick = () => {
-    navigator.clipboard.writeText(shareableURL);
+  const handleCopyToClipboardClick = async () => {
+    await navigator.clipboard.writeText(shareableURL);
     setCopiedToClipboard(true);
   };
 

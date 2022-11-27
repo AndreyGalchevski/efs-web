@@ -136,6 +136,7 @@ function UploadCard() {
           variant="contained"
           onClick={handleUploadClick}
           sx={{ width: 90 }}
+          role="uploadButton"
         >
           {isUploadImageLoading ? (
             <CircularProgress size={25} sx={{ color: "white" }} />
