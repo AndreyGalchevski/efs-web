@@ -1,7 +1,7 @@
 import { Modal, Box, SxProps, Button } from "@mui/material";
+import { observer } from "mobx-react-lite";
 
-import { useModalActions } from "../../hooks/useModalActions";
-import { useModalState } from "../../hooks/useModalState";
+import useModal from "../../hooks/useModal";
 import ImageUploadError from "./variants/ImageUploadError";
 import ImageUploadSuccess from "./variants/ImageUploadSuccess";
 
@@ -21,15 +21,14 @@ export const modalContentsStyle: SxProps = {
   justifyContent: "center",
 };
 
-function SystemModal() {
-  const { isVisible, modalData } = useModalState();
-  const { hideModal } = useModalActions();
+const SystemModal = observer(() => {
+  const modalState = useModal();
 
   const handleModalClose = () => {
-    hideModal();
+    modalState.hideModal();
   };
 
-  if (!isVisible || !modalData) {
+  if (!modalState.isVisible || !modalState.modalData) {
     return null;
   }
 
@@ -38,14 +37,18 @@ function SystemModal() {
       <Box sx={modalContentsStyle}>
         <>
           {(() => {
-            switch (modalData.modalType) {
+            switch (modalState.modalData.modalType) {
               case "IMAGE_UPLOAD_SUCCESS":
                 return (
-                  <ImageUploadSuccess shareableURL={modalData.shareableURL} />
+                  <ImageUploadSuccess
+                    shareableURL={modalState.modalData.shareableURL}
+                  />
                 );
               case "IMAGE_UPLOAD_ERROR":
                 return (
-                  <ImageUploadError errorMessage={modalData.errorMessage} />
+                  <ImageUploadError
+                    errorMessage={modalState.modalData.errorMessage}
+                  />
                 );
               default:
                 return null;
@@ -56,6 +59,6 @@ function SystemModal() {
       </Box>
     </Modal>
   );
-}
+});
 
 export default SystemModal;

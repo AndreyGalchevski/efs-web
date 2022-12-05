@@ -1,10 +1,5 @@
-import {
-  createContext,
-  useReducer,
-  PropsWithChildren,
-  useCallback,
-  FunctionComponent,
-} from "react";
+import { makeAutoObservable } from "mobx";
+import { createContext, FunctionComponent, PropsWithChildren } from "react";
 
 export type ModalType = "IMAGE_UPLOAD_SUCCESS" | "IMAGE_UPLOAD_ERROR";
 
@@ -22,63 +17,35 @@ export interface ImageUploadErrorModalData extends BasicModalData {
   errorMessage: string;
 }
 
-export interface ModalState {
-  isVisible: boolean;
+export class ModalState {
+  isVisible = false;
   modalData?: ImageUploadSuccessModalData | ImageUploadErrorModalData;
+
+  constructor() {
+    makeAutoObservable(this);
+  }
+
+  showModal(
+    modalData: ImageUploadSuccessModalData | ImageUploadErrorModalData
+  ) {
+    this.isVisible = true;
+    this.modalData = modalData;
+  }
+
+  hideModal() {
+    this.isVisible = false;
+    this.modalData = undefined;
+  }
 }
 
-export interface ModalActions {
-  showModal: (data: ModalState) => void;
-  hideModal: () => void;
-}
-
-export const ModalStateContext = createContext<ModalState | undefined>(
-  undefined
-);
-export const ModalActionsContext = createContext<ModalActions | undefined>(
-  undefined
-);
-
-const modalReducer = (
-  currentState: ModalState,
-  action: { payload?: Partial<ModalState> }
-): ModalState => ({ ...currentState, ...action.payload });
-
-const initialState: ModalState = {
-  isVisible: false,
-  modalData: undefined,
-};
+export const ModalContext = createContext<ModalState | undefined>(undefined);
 
 export const ModalProvider: FunctionComponent<PropsWithChildren> = ({
   children,
 }) => {
-  const [state, dispatch] = useReducer(modalReducer, initialState);
-
-  const showModal = (data: ModalState) => {
-    dispatch({
-      payload: {
-        isVisible: true,
-        modalData: data.modalData,
-      },
-    });
-  };
-
-  const hideModal = () => {
-    dispatch({
-      payload: initialState,
-    });
-  };
-
-  const actions: ModalActions = {
-    showModal: useCallback(showModal, []),
-    hideModal: useCallback(hideModal, []),
-  };
-
   return (
-    <ModalStateContext.Provider value={state}>
-      <ModalActionsContext.Provider value={actions}>
-        {children}
-      </ModalActionsContext.Provider>
-    </ModalStateContext.Provider>
+    <ModalContext.Provider value={new ModalState()}>
+      {children}
+    </ModalContext.Provider>
   );
 };

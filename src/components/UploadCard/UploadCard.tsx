@@ -9,9 +9,10 @@ import {
   CardHeader,
   CircularProgress,
 } from "@mui/material";
+import { observer } from "mobx-react-lite";
 import { ChangeEvent, useEffect, useState } from "react";
 
-import { useModalActions } from "../../hooks/useModalActions";
+import useModal from "../../hooks/useModal";
 import useMutationUploadImage from "../../hooks/useMutationUploadImage";
 
 const DEFAULT_TTL_SEC = "60";
@@ -29,7 +30,7 @@ const CenteredCardActions = styled(CardActions)({
   justifyContent: "center",
 });
 
-function UploadCard() {
+const UploadCard = observer(() => {
   const [ttl, setTTL] = useState<string>(DEFAULT_TTL_SEC);
   const [selectedFile, setSelectedFile] = useState<File>();
   const [validationError, setValidationError] = useState<string>();
@@ -39,7 +40,7 @@ function UploadCard() {
     error: uploadImageError,
     isLoading: isUploadImageLoading,
   } = useMutationUploadImage();
-  const { showModal } = useModalActions();
+  const modalState = useModal();
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     setValidationError(undefined);
@@ -72,29 +73,23 @@ function UploadCard() {
     if (uploadImageData) {
       resetForm();
 
-      showModal({
-        isVisible: true,
-        modalData: {
-          modalType: "IMAGE_UPLOAD_SUCCESS",
-          shareableURL: uploadImageData,
-        },
+      modalState.showModal({
+        modalType: "IMAGE_UPLOAD_SUCCESS",
+        shareableURL: uploadImageData,
       });
     }
-  }, [uploadImageData, showModal]);
+  }, [uploadImageData, modalState]);
 
   useEffect(() => {
     if (uploadImageError) {
       resetForm();
 
-      showModal({
-        isVisible: true,
-        modalData: {
-          modalType: "IMAGE_UPLOAD_ERROR",
-          errorMessage: uploadImageError.message,
-        },
+      modalState.showModal({
+        modalType: "IMAGE_UPLOAD_ERROR",
+        errorMessage: uploadImageError.message,
       });
     }
-  }, [uploadImageError, showModal]);
+  }, [uploadImageError, modalState]);
 
   return (
     <Card sx={{ minWidth: 300, maxWidth: 375 }} variant="outlined">
@@ -147,6 +142,6 @@ function UploadCard() {
       </CenteredCardActions>
     </Card>
   );
-}
+});
 
 export default UploadCard;
